@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fa">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clothify</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .product {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button {
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            border: none;
+            background: #2196f3;
+            color: white;
+            margin-left: 5px;
+        }
+
+        #cart {
+            margin-top: 20px;
+            background: #eee;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        #cart ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #cart li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        #cart li span {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="navbar">
+        <h1 class="logo">Clothify</h1>
+        <nav>
+            <a href="index.html">خانه</a>
+            <a href="product.html">محصولات</a>
+            <a href="about_us.html">درباره ما</a>
+            <a href="cart.html">سبد خرید</a>
+        </nav>
+    </header>
+
+    <div id="products"></div>
+
+    <div id="cart">
+        <h2>سبد خرید</h2>
+        <ul id="cartItems"></ul>
+        <p>جمع کل: <span id="total">0</span> تومان</p>
+    </div>
+
+    <script>
+        const products = [
+            { id: 1, name: "تیشرت سفید", price: 150000 },
+            { id: 2, name: "هودی مشکی", price: 400000 },
+            { id: 3, name: "شلوار جین", price: 250000 }
+        ];
+
+        let cart = [];
+
+        const productsDiv = document.getElementById('products');
+        const cartItemsUl = document.getElementById('cartItems');
+        const totalEl = document.getElementById('total');
+
+        // نمایش محصولات
+        products.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'product';
+            div.innerHTML = `
+        <span>${p.name} - ${p.price.toLocaleString()} تومان</span>
+        <button onclick="addToCart(${p.id})">➕ اضافه به سبد</button>
+    `;
+            productsDiv.appendChild(div);
+        });
+
+        // اضافه کردن محصول به سبد
+        function addToCart(id) {
+            const existing = cart.find(i => i.id === id);
+            if (existing) existing.count++;
+            else {
+                const product = products.find(p => p.id === id);
+                cart.push({ ...product, count: 1 });
+            }
+            updateCart();
+        }
+
+        // افزایش تعداد محصول
+        function increaseCount(id) {
+            const item = cart.find(i => i.id === id);
+            if (item) item.count++;
+            updateCart();
+        }
+
+        // کاهش تعداد محصول
+        function decreaseCount(id) {
+            const item = cart.find(i => i.id === id);
+            if (item && item.count > 1) item.count--;
+            else removeFromCart(id);
+            updateCart();
+        }
+
+        // حذف محصول
+        function removeFromCart(id) {
+            cart = cart.filter(i => i.id !== id);
+            updateCart();
+        }
+
+        // بروزرسانی سبد خرید و جمع کل
+        function updateCart() {
+            cartItemsUl.innerHTML = '';
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price * item.count;
+                const li = document.createElement('li');
+                li.innerHTML = `
+            <span>${item.name}</span>
+            <span>
+                <button onclick="decreaseCount(${item.id})">➖</button>
+                ${item.count}
+                <button onclick="increaseCount(${item.id})">➕</button>
+            </span>
+            <span>${(item.price * item.count).toLocaleString()} تومان</span>
+            <button onclick="removeFromCart(${item.id})">❌</button>
+        `;
+                cartItemsUl.appendChild(li);
+            });
+            totalEl.textContent = total.toLocaleString();
+        }
+    </script>
+
+</body>
+
+</html>
